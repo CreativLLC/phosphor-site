@@ -1,9 +1,9 @@
-// Scripted loops for 02 (desktop notifications + bell) and 03 (tabs flipping to done / needs you, AUTO router,
+// Scripted loops for 03 (desktop notifications + bell) and 04 (tabs flipping to done / needs you, AUTO router,
 // notifications that wait). Each runs only while on screen; reduced motion shows a finished still state.
 import { $, $$, watch, motion, sleep } from './util.js';
 import { sfx } from './sound.js';
 import { typeInto } from './type.js';
-import { beat } from '../content.js';
+import { beat, os } from '../content.js';
 
 // A cancellable script runner: steps are [delayMs, fn]. Loops while visible.
 function loopScript(root, steps, { reset, final, gap = 2400 } = {}) {
@@ -43,23 +43,24 @@ export function desktop() {
   const desk = $('.desk');
   if (!desk) return;
   const notes = $('.desk-notes', desk), bellN = $('.dbell-n', desk), bell = $('.dbell', desk);
+  const N = os.notes;
   let n = 0;
-  const push = (t, b) => {
-    const d = note('dnote', t, b);
-    notes.append(d);
-    while (notes.children.length > 2) notes.firstChild.remove();
+  const card = (x) => note(x.need ? 'dnote need' : 'dnote', x.t, x.b);
+  const push = (x) => {
+    notes.append(card(x));
+    while (notes.children.length > 3) notes.firstChild.remove();
     bellN.textContent = ++n;
     bell.classList.remove('ring'); void bell.offsetWidth; bell.classList.add('ring');
-    sfx.bell();
+    x.need ? sfx.attn() : sfx.bell();
   };
   loopScript(desk, [
-    [1200, () => push('DONE', 'Fix flaky tests: 42 tests passing.')],
-    [2600, () => push('CLAUDE NEEDS YOU', 'Release notes: approve the publish?')],
-    [3200, () => push('CREW', 'Librarian finished the docs.')],
+    [900, () => push(N[0])],
+    [2200, () => push(N[1])],
+    [2600, () => push(N[2])],
   ], {
     reset: () => { notes.textContent = ''; n = 0; bellN.textContent = '0'; },
-    final: () => { notes.textContent = ''; notes.append(note('dnote', 'CLAUDE NEEDS YOU', 'Release notes: approve the publish?')); bellN.textContent = '3'; },
-    gap: 3600,
+    final: () => { notes.textContent = ''; N.forEach((x) => notes.append(card(x))); bellN.textContent = String(N.length); },
+    gap: 5200,
   });
 }
 

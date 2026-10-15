@@ -12,7 +12,10 @@ export function toast(title, body, ms = 3800) {
   t.firstChild.textContent = title;
   t.lastChild.textContent = body;
   host.append(t);
-  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, ms);
+  let gone = false;
+  const close = () => { if (gone) return; gone = true; t.classList.add('out'); setTimeout(() => t.remove(), 300); };
+  setTimeout(close, ms);
+  return close;
 }
 
 export function degauss() {
@@ -40,10 +43,14 @@ export function commandLine({ setCrt, playTrailer }) {
     { t: 'DEGAUSS', k: 'FUN', run: degauss },
     { t: 'BACK TO TOP', k: 'GO', run: go('top') },
   ];
+  const help = { t: 'HELP: WHAT CAN I TYPE?', k: 'HELP', run: () => toast('HELP', 'Type a section (ask, install, faq), "trailer", "sound", "crt low" or "degauss". Up and down move, Enter runs.', 7000) };
+  cmds.unshift(help);
   let shown = [], sel = 0;
   const render = () => {
-    const q = input.value.trim().toUpperCase();
-    shown = cmds.filter((c) => !q || c.t.includes(q) || c.k.includes(q));
+    const q = input.value.trim().toUpperCase().replace(/^\//, '');
+    // "help" or "?" lists everything; otherwise every word typed has to match
+    const words = q.split(/\s+/).filter(Boolean);
+    shown = !q || q === '?' || q === 'HELP' ? cmds : cmds.filter((c) => words.every((w) => c.t.includes(w) || c.k.includes(w)));
     sel = Math.min(sel, Math.max(0, shown.length - 1));
     list.textContent = '';
     shown.forEach((c, i) => {
@@ -58,7 +65,7 @@ export function commandLine({ setCrt, playTrailer }) {
       li.addEventListener('click', () => exec(i));
       list.append(li);
     });
-    if (!shown.length) { const li = document.createElement('li'); li.textContent = 'NO MATCH. TRY "INSTALL"'; list.append(li); }
+    if (!shown.length) { const li = document.createElement('li'); li.textContent = 'NO MATCH. TYPE "HELP" OR TRY "INSTALL"'; list.append(li); }
     input.setAttribute('aria-activedescendant', shown.length ? `cmd-o${sel}` : '');
     list.children[sel]?.scrollIntoView({ block: 'nearest' });
   };

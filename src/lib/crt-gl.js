@@ -15,7 +15,8 @@ precision highp float;
 in vec2 uv; out vec4 o;
 uniform sampler2D vid, prev;
 uniform vec2 res, vsize;
-uniform float chroma, bloom, decay;
+uniform float chroma, bloom, decay, zoom;
+uniform vec2 zc;
 vec2 cover(vec2 u){
   float ra = res.x / res.y, va = vsize.x / vsize.y;
   vec2 s = ra > va ? vec2(1., va / ra) : vec2(ra / va, 1.);
@@ -23,6 +24,9 @@ vec2 cover(vec2 u){
 }
 void main(){
   vec2 v = cover(vec2(uv.x, 1. - uv.y));
+  // punch-in: zoom toward zc, kept inside the frame (sampled from the full-size video, so text stays sharp)
+  vec2 cz = clamp(zc, vec2(.5 / zoom), vec2(1. - .5 / zoom));
+  v = cz + (v - cz) / zoom;
   float c = chroma / res.x;
   vec3 col = vec3(texture(vid, v + vec2(c, 0.)).r, texture(vid, v).g, texture(vid, v - vec2(c, 0.)).b);
   vec3 b1 = textureLod(vid, v, 2.5).rgb, b2 = textureLod(vid, v, 4.5).rgb;
@@ -60,7 +64,7 @@ void main(){
   // vignette + rounded tube corners
   vec2 d = abs(c);
   float vig = smoothstep(1.35, .35, length(c * vec2(.92, 1.04)));
-  float corner = 1. - smoothstep(.94, 1., max(d.x, d.y) + .06 * pow(min(d.x, d.y), 6.));
+  float corner = 1. - smoothstep(.975, 1., max(d.x, d.y) + .06 * pow(min(d.x, d.y), 6.));
   col *= mix(.7, 1.12, vig) * corner;
   // slow rolling band
   float band = smoothstep(.0, .12, fract(u.y * .7 - t * .07)) * (1. - smoothstep(.12, .24, fract(u.y * .7 - t * .07)));
@@ -102,7 +106,7 @@ function tex(gl, mip) {
 }
 
 export function createCRT(canvas, video, opt = {}) {
-  const o = { curve: 0.06, scan: 0.34, mask: 0.18, grain: 0.035, chroma: 1.4, bloom: 0.9, decay: 0.82, fps: 30, maxDpr: 1.5, ...opt };
+  const o = { curve: 0.06, scan: 0.34, mask: 0.18, grain: 0.035, chroma: 1.4, bloom: 0.9, decay: 0.82, fps: 30, maxDpr: 1.5, zoom: 1, zcx: 0.5, zcy: 0.5, ...opt };
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'default' });
   if (!gl) return null;
   let A, B;
@@ -163,6 +167,8 @@ export function createCRT(canvas, video, opt = {}) {
     gl.uniform1f(A.u.chroma, o.chroma * dpr);
     gl.uniform1f(A.u.bloom, o.bloom);
     gl.uniform1f(A.u.decay, video.paused ? 0 : o.decay);
+    gl.uniform1f(A.u.zoom, o.zoom);
+    gl.uniform2f(A.u.zc, o.zcx, o.zcy);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     // pass 2: tube
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -196,6 +202,7 @@ export function createCRT(canvas, video, opt = {}) {
     ok: true,
     lost: false,
     get hasFrame() { return hasFrame; },
+    get running() { return running; },
     start() { if (running || api.lost) return; running = true; raf = requestAnimationFrame(loop); },
     stop() { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; },
     once() { if (!api.lost) { dirty = true; draw(performance.now()); } },

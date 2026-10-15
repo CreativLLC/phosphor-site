@@ -13,11 +13,16 @@ export default function pages() {
       const r = await import(url);
       return html.replace('<!--slot:head-->', r.renderHead()).replace('<!--slot:body-->', r.renderBody());
     },
-    // 404.html is standalone (GitHub Pages serves it at any depth); only the repo link is filled in.
+    // 404.html is standalone (GitHub Pages serves it at any depth); the repo and site links are filled in.
     async generateBundle() {
       const { readFile } = await import('node:fs/promises');
       const c = await import(pathToFileURL(resolve(root, 'src/content.js')).href + `?t=${Date.now()}`);
-      const html = (await readFile(resolve(root, 'src/404.html'), 'utf8')).replaceAll('%REPO_URL%', c.REPO_URL);
+      // the home link is absolute (SITE_URL), so it lands on the project site, not on the github.io root
+      const site = new URL(c.SITE_URL, 'https://localhost/');
+      const html = (await readFile(resolve(root, 'src/404.html'), 'utf8'))
+        .replaceAll('%REPO_URL%', c.REPO_URL)
+        .replaceAll('%SITE_URL%', c.SITE_URL)
+        .replaceAll('%SITE_PATH%', site.pathname);
       this.emitFile({ type: 'asset', fileName: '404.html', source: html });
     },
     handleHotUpdate({ file, server }) {

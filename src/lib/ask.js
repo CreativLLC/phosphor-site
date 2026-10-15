@@ -1,4 +1,4 @@
-// 05 JUST ASK. A prompt types itself, Claude answers, and the mini desktop changes inside a View Transition
+// 02 JUST ASK. A prompt types itself, Claude answers, and the mini desktop changes inside a View Transition
 // (where supported). Visitors can press any example to run it. Amber only: changes are layout, never hue.
 import { $, $$, watch, motion, sleep } from './util.js';
 import { typeInto } from './type.js';
@@ -10,14 +10,15 @@ export function justAsk() {
   if (!demo) return;
   const P = $('.ask-p', demo), R = $('.ask-r', demo), F = $('.ask-f', demo);
   const chips = $$('.ask-chip');
-  const hm = $('.mclock .hm', demo), ss = $('.mclock .ss', demo);
-  const KEY = { seconds: 'seconds', bell: 'bell', notes: 'notes', blink: 'blink' };
+  const hm = $('.mclock .hm', demo), ap = $('.mclock .ap', demo);
+  const KEY = { twelve: 'twelve', bell: 'bell', notes: 'notes', blink: 'blink' };
   let busy = false, manual = false, vis = false, gen = 0;
 
+  // the bar clock: 24-hour until someone asks for 12-hour
   const clock = () => {
-    const d = new Date();
-    hm.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    ss.textContent = `:${String(d.getSeconds()).padStart(2, '0')}`;
+    const d = new Date(), h = d.getHours(), m = String(d.getMinutes()).padStart(2, '0');
+    if (demo.dataset.twelve === '1') { hm.textContent = `${h % 12 || 12}:${m}`; ap.textContent = h < 12 ? ' AM' : ' PM'; }
+    else { hm.textContent = `${String(h).padStart(2, '0')}:${m}`; ap.textContent = ''; }
   };
   clock();
   setInterval(() => vis && clock(), 1000);
@@ -40,14 +41,14 @@ export function justAsk() {
     F.innerHTML = '<b>EDITED</b>';
     F.append(document.createTextNode(p.file));
     sfx.beep();
-    apply(() => { demo.dataset[KEY[p.id]] = '1'; });
+    apply(() => { demo.dataset[KEY[p.id]] = '1'; clock(); });
     press(p.id, true);
     if (manual) $('#ask-live').textContent = `${p.p} Claude: ${p.r}`;
     busy = false;
   }
   function reset() {
     gen++;
-    apply(() => { for (const k of Object.values(KEY)) demo.dataset[k] = '0'; });
+    apply(() => { for (const k of Object.values(KEY)) demo.dataset[k] = '0'; clock(); });
     chips.forEach((c) => c.dataset.id !== 'reset' && c.setAttribute('aria-pressed', 'false'));
     P.textContent = ''; R.textContent = ''; F.textContent = '';
     busy = false;
@@ -60,7 +61,7 @@ export function justAsk() {
     const p = ask.prompts.find((x) => x.id === c.dataset.id);
     if (demo.dataset[KEY[p.id]] === '1') {
       // pressing it again undoes it
-      apply(() => { demo.dataset[KEY[p.id]] = '0'; });
+      apply(() => { demo.dataset[KEY[p.id]] = '0'; clock(); });
       press(p.id, false);
       return;
     }
@@ -86,7 +87,7 @@ export function justAsk() {
     if (on && !manual && !busy) {
       if (motion.reduced) {
         // still frame: the first change already applied
-        demo.dataset.seconds = '1'; press('seconds', true);
+        demo.dataset.twelve = '1'; press('twelve', true); clock();
         P.textContent = ask.prompts[0].p; R.textContent = ask.prompts[0].r;
         F.innerHTML = '<b>EDITED</b>'; F.append(document.createTextNode(ask.prompts[0].file));
       } else auto();

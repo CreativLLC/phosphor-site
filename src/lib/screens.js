@@ -53,12 +53,19 @@ function reducedPlayButtons() {
 }
 
 // ---------- hero monitor ----------
+// The poster <img> is the LCP image; the clip fades in over it once it plays. Wide screens get the 16:10 chat +
+// mission panel (2048 px), phones the mission panel alone (4:5). Scrolling out of the hero punches in on the
+// mission panel, which hands over to 01, where the same panel builds itself.
+const MISSION = { x: 0.835, y: 0.33 }; // centre of the mission panel inside the wide clip
 export function heroMonitor() {
   const fig = $('.mon-hero');
   if (!fig) return;
   const screen = $('.screen', fig);
   const video = $('video', screen);
+  const narrow = matchMedia('(max-width: 899px)');
+  if (narrow.matches && video.dataset.srcM) video.dataset.src = video.dataset.srcM;
   let crt = null, visible = false, tried = false;
+  video.addEventListener('playing', () => video.classList.add('on'));
 
   const want = () => visible && !motion.reduced && !document.hidden;
   const sync = () => {
@@ -67,19 +74,22 @@ export function heroMonitor() {
   };
 
   async function initGL() {
-    if (tried || motion.reduced || saveData()) return;
+    // phones keep the plain clip + CSS glass: a full-time WebGL pass is not worth the battery (or the main thread)
+    if (tried || motion.reduced || saveData() || narrow.matches || matchMedia('(pointer: coarse)').matches) return;
     tried = true;
     const { createCRT, canGL } = await loadGL();
     if (!canGL()) return;
     const canvas = document.createElement('canvas');
     canvas.setAttribute('aria-hidden', 'true');
-    screen.insertBefore(canvas, video.nextSibling);
-    crt = createCRT(canvas, video, { curve: 0.07, bloom: 0.8, chroma: 1, scan: 0.28, power: 0, onLost: () => screen.classList.remove('gl') });
+    $('.zoom', screen).append(canvas);
+    // a light touch: barely curved, a whisper of bloom, so the HUD text stays crisp
+    crt = createCRT(canvas, video, { curve: 0.012, bloom: 0.18, chroma: 0.3, scan: 0.1, mask: 0.05, grain: 0.018, decay: 0.3, maxDpr: 2, power: 0, zcx: MISSION.x, zcy: MISSION.y, onLost: () => screen.classList.remove('gl') });
     if (!crt) { canvas.remove(); return; }
     const reveal = () => {
       crt.once();
       requestAnimationFrame(() => { screen.classList.add('gl'); crt.powerOn(900); if (visible) sfx.thunk(); });
       sync();
+      punch();
     };
     if (video.readyState >= 2) reveal(); else video.addEventListener('loadeddata', reveal, { once: true });
   }
@@ -89,14 +99,17 @@ export function heroMonitor() {
   document.addEventListener('visibilitychange', sync);
   motion.on(sync);
 
-  // Scroll-linked rise: the monitor lies back on the horizon and stands up as you scroll to it.
-  const stage = $('#stage');
-  onScroll(() => {
-    if (motion.reduced) { fig.style.removeProperty('--tilt'); return; }
-    const r = stage.getBoundingClientRect();
-    const p = clamp((innerHeight - r.top) / (innerHeight * 0.85));
-    fig.style.setProperty('--tilt', (1 - p).toFixed(3));
-  });
+  // Scroll punch-in on the mission panel (wide screens only).
+  function punch() {
+    if (motion.reduced || narrow.matches) { fig.style.setProperty('--zoom', '1'); fig.style.setProperty('--lift', '0'); crt?.set('zoom', 1); return; }
+    const p = clamp(scrollY / (innerHeight * 0.62));
+    const e = p * p * (3 - 2 * p);
+    const z = 1 + e * 1.55;
+    fig.style.setProperty('--zoom', z.toFixed(3));
+    fig.style.setProperty('--lift', e.toFixed(3));
+    if (crt) { crt.set('zoom', z); if (!crt.running) crt.once(); }
+  }
+  onScroll(punch);
 }
 
 // ---------- trailer ----------

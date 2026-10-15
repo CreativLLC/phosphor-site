@@ -35,6 +35,10 @@ desktop();
 comms();
 justAsk();
 layerStack();
+// the whole-OS reel: arrow buttons scroll it sideways (it also scrolls with a trackpad, touch or the keyboard)
+for (const b of document.querySelectorAll('.reel-b')) {
+  b.addEventListener('click', () => { const r = $('.reel'); r.scrollBy({ left: +b.dataset.dir * r.clientWidth * 0.75, behavior: motion.reduced ? 'auto' : 'smooth' }); });
+}
 commandLine({ setCrt, playTrailer: () => $('.tv-play')?.click() });
 
 booted.then(() => {
@@ -43,7 +47,12 @@ booted.then(() => {
   idle(afterglow);
   if (!sessionStorage.getItem('ph-hint') && !motion.reduced && matchMedia('(pointer: fine)').matches) {
     try { sessionStorage.setItem('ph-hint', '1'); } catch {}
-    setTimeout(() => toast('TIP', 'Press / for the command line. Sound is off until you turn it on.', 5200), 2600);
+    // the tip goes after 5 s, or at the first scroll or keypress, whichever comes first (it must not sit on the HUD)
+    let close = null, done = false;
+    const bye = () => { done = true; close?.(); removeEventListener('scroll', bye); removeEventListener('keydown', bye); };
+    addEventListener('scroll', bye, { passive: true, once: true });
+    addEventListener('keydown', bye, { once: true });
+    setTimeout(() => { if (!done && scrollY < innerHeight * 0.3) close = toast('TIP', 'Press / for the command line. Sound is off until you turn it on.', 5000); }, 1800);
   }
 });
 

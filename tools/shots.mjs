@@ -11,8 +11,9 @@ const BASE = process.env.BASE || 'http://127.0.0.1:5182/';
 const OUT = 'shots';
 mkdirSync(OUT, { recursive: true });
 const which = process.argv.slice(2).length ? process.argv.slice(2) : ['desktop', 'mobile'];
-const VP = { desktop: { width: 1440, height: 900, dpr: 1 }, mobile: { width: 390, height: 844, dpr: 2 }, reduced: { width: 1440, height: 900, dpr: 1, reduced: true }, wide: { width: 2560, height: 1080, dpr: 1 } };
-const SECTIONS = [['hero', '#top', 0], ['stage', '#stage', 0.12], ['see-1', '#see .see-pin', 0.22], ['see-2', '#see .see-pin', 0.62], ['see-3', '#see .see-pin', 0.98], ['trailer', '#trailer', 0], ['os', '#os', 0], ['beat', '#beat', 0], ['phone', '#phone', 0], ['ask', '#ask', 0], ['gpu', '#gpu', 0], ['how', '#how', 0], ['install', '#install', 0], ['faq', '#faq', 0], ['end', '.end', 0]];
+const VP = { desktop: { width: 1440, height: 900, dpr: 1 }, mobile: { width: 390, height: 844, dpr: 2 }, reduced: { width: 1440, height: 900, dpr: 1, reduced: true }, wide: { width: 2560, height: 1080, dpr: 1 }, laptop: { width: 1280, height: 720, dpr: 1 } };
+// [name, selector, fraction through a tall element | null, or a fixed scrollY in viewport heights when selector is '@']
+const SECTIONS = [['hero', '#top', 0], ['stage', '@', 0.4], ['see-1', '#see .see-pin', 0.1], ['see-2', '#see .see-pin', 0.55], ['see-3', '#see .see-pin', 0.98], ['ask', '#ask', 0], ['trailer', '#trailer', 0], ['os', '#os', 0], ['reel', '.reel-wrap', 0], ['beat', '#beat', 0], ['phone', '#phone', 0], ['how', '#how', 0], ['gpu', '#gpu', 0], ['install', '#install', 0], ['faq', '#faq', 0], ['end', '.end', 0]];
 
 const browser = await chromium.launch({ headless: true, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 for (const name of which) {
@@ -27,8 +28,11 @@ for (const name of which) {
   await page.waitForTimeout(1500);
   for (const [id, sel, frac] of SECTIONS) {
     if (name === 'reduced' && !['hero', 'see-1', 'ask'].includes(id)) continue;
-    if (name === 'wide' && !['hero', 'stage', 'see-2', 'os'].includes(id)) continue;
+    if (name === 'wide' && !['hero', 'stage', 'see-2', 'ask', 'os'].includes(id)) continue;
+    if (name === 'laptop' && !['hero', 'see-2', 'ask', 'faq'].includes(id)) continue;
     const ok = await page.evaluate(([sel, frac]) => {
+      document.documentElement.style.scrollBehavior = 'auto';
+      if (sel === '@') { scrollTo(0, innerHeight * frac); return true; }
       const el = document.querySelector(sel);
       if (!el) return false;
       const r = el.getBoundingClientRect();
@@ -46,7 +50,7 @@ for (const name of which) {
     await page.waitForTimeout(400);
     await page.screenshot({ path: `${OUT}/${name}-404.png` });
   }
-  if (name !== 'reduced' && name !== 'wide') {
+  if (name === 'desktop' || name === 'mobile') {
     await page.goto(BASE + '?noboot', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1200);
     // full page: Playwright's fullPage stitching breaks on the sticky pinned section, so scroll one
@@ -54,15 +58,22 @@ for (const name of which) {
     const H = v.height;
     const total = await page.evaluate(() => document.documentElement.scrollHeight);
     const parts = [];
+    let lastY = -1, overlap = 0;
     for (let y = 0, k = 0; y < total; y += H, k++) {
-      await page.evaluate((y) => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, y); }, y);
+      const real = await page.evaluate((y) => { document.documentElement.style.scrollBehavior = 'auto'; scrollTo(0, y); return scrollY; }, y);
+      if (real <= lastY) break;
+      // the last frame is clamped to the bottom of the page: crop what the previous frame already showed
+      overlap = lastY >= 0 ? lastY + H - real : 0;
+      lastY = real;
       await page.waitForTimeout(650);
       const f = `/tmp/shot-${name}-${String(k).padStart(2, '0')}.png`;
       await page.screenshot({ path: f });
       parts.push(f);
     }
     const { execFileSync } = await import('node:child_process');
-    const args = ['-v', 'error', '-y', ...parts.flatMap((f) => ['-i', f]), '-filter_complex', `${parts.map((_, i) => `[${i}]`).join('')}vstack=inputs=${parts.length}`, `${OUT}/${name}-full.png`];
+    const n = parts.length, ov = Math.round(overlap * v.dpr);
+    const pre = parts.map((_, i) => (i === n - 1 && ov > 0 ? `[${i}]crop=iw:ih-${ov}:0:${ov}[p${i}]` : `[${i}]null[p${i}]`)).join(';');
+    const args = ['-v', 'error', '-y', ...parts.flatMap((f) => ['-i', f]), '-filter_complex', `${pre};${parts.map((_, i) => `[p${i}]`).join('')}vstack=inputs=${n}`, `${OUT}/${name}-full.png`];
     execFileSync('ffmpeg', args);
   }
   console.log(name, errs.length ? errs : 'no errors');

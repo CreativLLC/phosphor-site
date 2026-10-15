@@ -37,12 +37,13 @@ export function seeEverything(spritesReady) {
     m5: $('.m5h', hud), mw: $('.mwk', hud), v5: $('.v5h', hud), vw: $('.vwk', hud), files: $$('.files li', hud), flv: $('.fl-v', hud),
     crew: $$('.cc', hud), crewv: $('.crew-v', hud), ag: $('.ag-v', hud), pct: $('.pct', hud), prog: $('.prog', hud), chip: $('.stepchip', hud), cur: $('.cur-step', hud), tm: $('.tm', hud),
   };
-  const S = { step: 2, ctx: 27, p5: 23, wk: 41, files: 3, sec: 5, nowI: 0, typed: 0, beat: 0, hold: 0 };
+  const S = { step: 3, ctx: 27, p5: 23, wk: 41, files: 3, sec: 5, nowI: 0, typed: 0, beat: 0, hold: 0 };
   const total = mission.steps.length;
 
   function paint() {
     el.steps.forEach((li, i) => { li.className = i < S.step ? 'x' : i === S.step ? 'act' : ''; });
     const pct = Math.round((S.step / total) * 100);
+    // one count everywhere: steps done out of the total, as a fraction and a percent
     el.stv.textContent = S.step >= total ? `${total}/${total} DONE` : `${S.step}/${total} ${pct}%`;
     el.ctxv.textContent = `${S.ctx}%`; el.ctxt.textContent = `${Math.round(S.ctx * 2)}K`; segs(el.ctx, S.ctx);
     el.v5.textContent = `${S.p5}%`; segs(el.m5, S.p5); el.vw.textContent = `${S.wk}%`; segs(el.mw, S.wk);
@@ -58,12 +59,12 @@ export function seeEverything(spritesReady) {
         sprites?.setDone($('canvas', c), d);
       }
     });
-    el.crewv.textContent = `${running} ACTIVE / 5`;
-    el.ag.textContent = `${running} RUNNING / 5`;
+    el.crewv.textContent = `${running} ACTIVE / ${el.crew.length}`;
+    el.ag.textContent = `${running} RUNNING / ${el.crew.length}`;
     el.pct.textContent = `${pct}%`;
     el.prog.style.setProperty('--p', (S.step / total).toFixed(3));
-    el.chip.textContent = S.step >= total ? 'COMPLETE' : `STEP ${S.step + 1}/${total}`;
-    el.cur.textContent = S.step >= total ? mission.task.toLowerCase().replace(/^./, (c) => c.toUpperCase()) : mission.steps[S.step];
+    el.chip.textContent = S.step >= total ? 'COMPLETE' : `${S.step}/${total} DONE`;
+    el.cur.textContent = S.step >= total ? mission.task.toLowerCase().replace(/^./, (c) => c.toUpperCase()) : `> ${mission.steps[S.step]}`;
     el.tm.textContent = `00:${String(S.sec % 60).padStart(2, '0')}`;
   }
   paint();
@@ -155,7 +156,8 @@ export function seeEverything(spritesReady) {
   function onPin() {
     if (!pinned) return;
     const p = pinProgress(pin);
-    const i = p < 0.05 ? -1 : p > 0.94 ? 8 : Math.min(7, Math.floor(((p - 0.05) / 0.86) * 8));
+    // the first panel is already lit as the pin starts, so the hero's punch-in hands straight over to it
+    const i = p > 0.93 ? 8 : Math.min(7, Math.floor((p / 0.9) * 8));
     setIdx(i);
   }
 
