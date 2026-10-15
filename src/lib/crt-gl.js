@@ -1,6 +1,6 @@
 // One small WebGL2 CRT: a <video> goes through two passes.
 //  1. phosphor pass (offscreen, flat): chromatic split + bloom from the video's own mipmaps, and
-//     persistence: each pixel keeps max(new, previous * decay), so bright text leaves a short afterglow.
+//     persistence: each pixel keeps max(new, previous * decay); callers use decay 0 (off) so there is no ghosting.
 //  2. tube pass (to the canvas): barrel curvature, scanlines and an aperture mask in device pixels
 //     (no moire at fractional DPR), vignette, a slow rolling band, grain, and the power-on squeeze.
 // Written for this site (MIT); no shader code copied from elsewhere. Falls back to plain <video> + CSS
@@ -28,7 +28,8 @@ void main(){
   vec2 cz = clamp(zc, vec2(.5 / zoom), vec2(1. - .5 / zoom));
   v = cz + (v - cz) / zoom;
   float c = chroma / res.x;
-  vec3 col = vec3(texture(vid, v + vec2(c, 0.)).r, texture(vid, v).g, texture(vid, v - vec2(c, 0.)).b);
+  // a negative LOD bias picks a sharper mip level, so downscaled HUD text stays crisp
+  vec3 col = vec3(texture(vid, v + vec2(c, 0.), -.75).r, texture(vid, v, -.75).g, texture(vid, v - vec2(c, 0.), -.75).b);
   vec3 b1 = textureLod(vid, v, 2.5).rgb, b2 = textureLod(vid, v, 4.5).rgb;
   vec3 bl = b1 * .55 + b2 * .45;
   col += bl * bl * bloom;
@@ -63,9 +64,9 @@ void main(){
   col *= mix(vec3(1.), tri, mask);
   // vignette + rounded tube corners
   vec2 d = abs(c);
-  float vig = smoothstep(1.35, .35, length(c * vec2(.92, 1.04)));
-  float corner = 1. - smoothstep(.975, 1., max(d.x, d.y) + .06 * pow(min(d.x, d.y), 6.));
-  col *= mix(.7, 1.12, vig) * corner;
+  float vig = smoothstep(1.5, .5, length(c * vec2(.8, .9)));
+  float corner = 1. - smoothstep(.99, 1., max(d.x, d.y) + .04 * pow(min(d.x, d.y), 6.));
+  col *= mix(.9, 1.04, vig) * corner; // light vignette: the edges of the app must stay readable
   // slow rolling band
   float band = smoothstep(.0, .12, fract(u.y * .7 - t * .07)) * (1. - smoothstep(.12, .24, fract(u.y * .7 - t * .07)));
   col += vec3(1., .69, .2) * band * .025;
@@ -106,7 +107,7 @@ function tex(gl, mip) {
 }
 
 export function createCRT(canvas, video, opt = {}) {
-  const o = { curve: 0.06, scan: 0.34, mask: 0.18, grain: 0.035, chroma: 1.4, bloom: 0.9, decay: 0.82, fps: 30, maxDpr: 1.5, zoom: 1, zcx: 0.5, zcy: 0.5, ...opt };
+  const o = { curve: 0.03, scan: 0.1, mask: 0.03, grain: 0.012, chroma: 0.2, bloom: 0.08, decay: 0, fps: 30, maxDpr: 1.5, zoom: 1, zcx: 0.5, zcy: 0.5, ...opt };
   const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, depth: false, stencil: false, premultipliedAlpha: false, preserveDrawingBuffer: false, powerPreference: 'default' });
   if (!gl) return null;
   let A, B;
@@ -126,8 +127,9 @@ export function createCRT(canvas, video, opt = {}) {
 
   function size() {
     dpr = Math.min(devicePixelRatio || 1, o.maxDpr);
-    const r = canvas.getBoundingClientRect();
-    const nw = Math.max(2, Math.round(r.width * dpr)), nh = Math.max(2, Math.round(r.height * dpr));
+    // layout size, not getBoundingClientRect: the hero monitor is tilted in 3D, and the bounding box of a tilted
+    // element has another aspect ratio, which made the picture crop (the app's edges were cut off)
+    const nw = Math.max(2, Math.round(canvas.clientWidth * dpr)), nh = Math.max(2, Math.round(canvas.clientHeight * dpr));
     if (nw === w && nh === h) return;
     w = canvas.width = nw; h = canvas.height = nh;
     for (const b of fb) {

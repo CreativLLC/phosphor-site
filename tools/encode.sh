@@ -36,10 +36,11 @@ clip() {
   echo "$n $(du -h "$O/$n.mp4" | cut -f1) $(du -h "$O/$n.webp" | cut -f1)"
 }
 
-# Hero monitor: the chat + mission panel at 2048 px (16:10), sharp enough for the scroll punch-in on the panel.
-clip hero      hero2    "crop=3004:1878:836:96,scale=2048:-2:flags=lanczos"      24 6.2 1.6 0.5
-# Phones get the mission panel alone (4:5), so the HUD is readable at 390 px.
-clip hero-m    hero2    "crop=1004:1255:2836:96,scale=800:-2:flags=lanczos"      24 6.2 1.6 0.5
+# Hero monitor: the WHOLE app (tabs, crew, chat, mission panel; 16:9) at 2560 px, sharp enough for the scroll punch-in.
+clip hero      hero2    "scale=2560:-2:flags=lanczos"                            25 6.2 1.6 0.5
+# Phones get the whole app at 1280 px; a tap swaps in hero-zoom (the mission panel alone, 4:5) so it is readable.
+clip hero-m    hero2    "scale=1280:-2:flags=lanczos"                            27 6.2 1.6 0.5
+clip hero-zoom hero2    "crop=1004:1255:2836:96,scale=800:-2:flags=lanczos"      24 6.2 1.6 0.5
 # Just ask, the real capture: the chat column where "make my clock 12-hour" is typed and done (1:1 pixels).
 clip ask       ask      "crop=1360:720:850:120,scale=1360:-2:flags=lanczos"      24 4.8 2.6 0.4
 # The whole OS reel.

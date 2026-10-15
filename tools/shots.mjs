@@ -9,6 +9,7 @@ const { chromium } = require('playwright');
 
 const BASE = process.env.BASE || 'http://127.0.0.1:5182/';
 const OUT = 'shots';
+const PFX = process.env.PFX || '';
 mkdirSync(OUT, { recursive: true });
 const which = process.argv.slice(2).length ? process.argv.slice(2) : ['desktop', 'mobile'];
 const VP = { desktop: { width: 1440, height: 900, dpr: 1 }, mobile: { width: 390, height: 844, dpr: 2 }, reduced: { width: 1440, height: 900, dpr: 1, reduced: true }, wide: { width: 2560, height: 1080, dpr: 1 }, laptop: { width: 1280, height: 720, dpr: 1 } };
@@ -43,12 +44,12 @@ for (const name of which) {
     }, [sel, frac]);
     if (!ok) continue;
     await page.waitForTimeout(id === 'stage' ? 2600 : id.startsWith('see') ? 1600 : 2200);
-    await page.screenshot({ path: `${OUT}/${name}-${id}.png` });
+    await page.screenshot({ path: `${OUT}/${PFX}${name}-${id}.png` });
   }
   if (name === 'desktop' || name === 'mobile') {
     await page.goto(BASE + '404.html', { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: `${OUT}/${name}-404.png` });
+    await page.screenshot({ path: `${OUT}/${PFX}${name}-404.png` });
   }
   if (name === 'desktop' || name === 'mobile') {
     await page.goto(BASE + '?noboot', { waitUntil: 'networkidle' });
@@ -73,7 +74,7 @@ for (const name of which) {
     const { execFileSync } = await import('node:child_process');
     const n = parts.length, ov = Math.round(overlap * v.dpr);
     const pre = parts.map((_, i) => (i === n - 1 && ov > 0 ? `[${i}]crop=iw:ih-${ov}:0:${ov}[p${i}]` : `[${i}]null[p${i}]`)).join(';');
-    const args = ['-v', 'error', '-y', ...parts.flatMap((f) => ['-i', f]), '-filter_complex', `${pre};${parts.map((_, i) => `[p${i}]`).join('')}vstack=inputs=${n}`, `${OUT}/${name}-full.png`];
+    const args = ['-v', 'error', '-y', ...parts.flatMap((f) => ['-i', f]), '-filter_complex', `${pre};${parts.map((_, i) => `[p${i}]`).join('')}vstack=inputs=${n}`, `${OUT}/${PFX}${name}-full.png`];
     execFileSync('ffmpeg', args);
   }
   console.log(name, errs.length ? errs : 'no errors');

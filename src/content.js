@@ -3,9 +3,8 @@
 // Rules: no em-dashes, no personal data, amber only. Change the repo link in ONE place: REPO_URL.
 
 export const REPO_URL = 'https://github.com/CreativLLC/phosphor-os';
-// GitHub Pages address derived from REPO_URL (owner.github.io/repo/). Used for the social card image only.
-const [, OWNER, REPO] = REPO_URL.match(/github\.com\/([^/]+)\/([^/]+)/) || [];
-export const SITE_URL = OWNER ? `https://${OWNER.toLowerCase()}.github.io/${REPO}/` : './';
+// The site is served by GitHub Pages at this custom domain, at the root path (vite.config.js base '/', public/CNAME).
+export const SITE_URL = 'https://phosphor.creativllc.org/';
 // GitHub Pages serves 404.html for any missing path, so its links must be absolute (filled in by plugins/pages.js).
 export const REPO_SHORT = REPO_URL.replace(/^https?:\/\//, '');
 export const CLONE_LINE = `git clone ${REPO_URL}.git ~/phosphor-os`;
@@ -38,7 +37,8 @@ export const hero = {
   headline: 'THE AGENT OS.',
   alternates: ['THE APP YOU LIVE IN WHEN YOU WORK WITH AGENTS.', 'SEE EVERYTHING.'],
   sub: 'A whole desktop built around Claude Code. One screen shows what your agent is doing now, the steps ahead, the context window, the crew, the model, your plan and every file it touches.',
-  monitor: 'Live session, demo mode: one chat, five crew members, the mission panel on the right.',
+  monitor: 'The whole app, live, in demo mode: tabs on top, the crew on the left, the chat in the middle, the mission panel on the right.',
+  alt: 'The whole Phosphor-OS window: chat tabs and buttons on top, the operator and crew cards on the left, the chat in the middle, and on the right the mission panel with plan usage, task, summary, what it is doing now and the steps ahead.',
   primary: { label: 'INSTALL IT', href: '#install' },
   secondary: { label: 'VIEW ON GITHUB', href: REPO_URL },
   tertiary: { label: 'WATCH THE 45 SECOND TRAILER', href: '#trailer' },
@@ -160,8 +160,19 @@ export const beat = {
   blocks: [
     { t: 'DONE VS NEEDS YOU', d: 'Every chat tab shows its state in plain sight. Done is calm. Needs you pulses. You see it from across the room.' },
     { t: 'AUTO MODEL', d: 'Set the picker to AUTO. A small fast model reads each message and picks the model and thinking level for it. Quick questions stay cheap, hard problems get the big model, and every reply shows the choice.' },
-    { t: 'KEEPS GOING', d: 'If your plan limit stops a long job, Phosphor-OS waits for the reset and sends one "continue" for you. Cancel it any time.' },
   ],
+  // the AUTO-CONTINUE callout (server/tab.ts: waits for the reset time + 90 s, sends one message shown as AUTO)
+  wait: {
+    tag: 'LIMIT HIT? IT WAITS.',
+    t: 'It carries on by itself when your plan resets.',
+    d: 'Hit your Claude plan limit in the middle of a long job and Phosphor-OS does not just sit there. It notes the reset time in the chat, waits, and when the limit resets it sends one "continue" for you. The chat and its helper agents pick up where they stopped, so a night of work does not sit idle for hours after the reset.',
+    small: 'Send a message yourself and the wait is cancelled. Works with a Claude login (Pro, Max or Team). One line in .env turns it off.',
+    log: [
+      { k: 'note', t: 'Usage limit reached. AUTO-CONTINUE at 11:10 PM.' },
+      { k: 'wait', t: 'Waiting for the reset. Your other tabs keep working.' },
+      { k: 'auto', t: 'Plan limit has reset. Continue where you left off.' },
+    ],
+  },
   tabs: ['Plugin system', 'Fix flaky tests', 'Release notes', 'Landing page', 'Docs pass'],
   route: [
     { msg: 'what does this regex do?', model: 'HAIKU 5.5', think: 'LOW', why: 'quick question' },
@@ -232,7 +243,7 @@ export const faq = [
   { q: 'Is it private and safe?', a: 'The server listens on 127.0.0.1 only and sits behind a password. For your phone it uses Tailscale, so only your own devices can reach it. It never uses Tailscale Funnel and never opens a port to the internet. Your chats stay on your PC and go to Anthropic exactly as they do in Claude Code. Phone alerts carry a tab name only, never chat text. Because the agent can run commands on your PC, Claude Code\'s approve and deny cards stay on.' },
   { q: 'Can I run a model on my own GPU?', a: 'Yes, optionally. Four local models sit in the same picker (Qwen and Gemma, on llama.cpp): the large ones want about 16 to 20 GB of video memory, the smallest about 5 GB. The setup is written for AMD cards with ROCm. A small local model is weaker than Claude on long, many-step jobs, so use it for quick work and privacy. Everything else works without it.' },
   { q: 'Does it run on Windows?', a: 'The app runs on Windows 10 and 11, in the browser or as a desktop app. The full operating system look is built on Omarchy, so that part is Linux only. macOS is not tested.' },
-  { q: 'Which Claude plan do I need?', a: 'Any plan that includes Claude Code. Agents use a lot of it, so the plan meter on the HUD shows how much you have left, and the app can resume a job after a limit resets.' },
+  { q: 'Which Claude plan do I need?', a: 'Any plan that includes Claude Code. Agents use a lot of it, so the plan meter on the HUD shows how much you have left, and if a limit stops a job the app waits for the reset and continues it by itself.' },
   { q: 'Can I change it?', a: 'Yes, that is the point. It is MIT licensed, plain files, and Claude Code can edit it for you. Ask for a new launcher command, a different bar or a bigger clock, and keep the undo script close.' },
 ];
 

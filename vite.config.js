@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import pages from './plugins/pages.js';
 
-// GitHub Pages serves the site under a sub-path (e.g. /phosphor-os/), so every asset path is relative.
+// Served by GitHub Pages at the custom domain phosphor.creativllc.org, at the root path (see public/CNAME, DEPLOY.md).
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [pages()],
   build: {
     assetsDir: 'bundle',

@@ -53,10 +53,12 @@ function reducedPlayButtons() {
 }
 
 // ---------- hero monitor ----------
-// The poster <img> is the LCP image; the clip fades in over it once it plays. Wide screens get the 16:10 chat +
-// mission panel (2048 px), phones the mission panel alone (4:5). Scrolling out of the hero punches in on the
-// mission panel, which hands over to 01, where the same panel builds itself.
-const MISSION = { x: 0.835, y: 0.33 }; // centre of the mission panel inside the wide clip
+// The poster <img> is the LCP image; the clip fades in over it once it plays. Every screen shows the WHOLE app
+// (16:9: tabs, crew, chat, mission panel). Wide screens punch in on the mission panel as you scroll out of the hero,
+// which hands over to 01, where the same panel builds itself. On phones the full app is too small to read, so
+// a tap swaps in a second clip of the mission panel alone (4:5) and a second tap goes back to the full app.
+const MISSION = { x: 0.87, y: 0.33 }; // centre of the mission panel inside the full-app clip
+const PUNCH = 1.25; // extra zoom at the end of the scroll (1 -> 2.25)
 export function heroMonitor() {
   const fig = $('.mon-hero');
   if (!fig) return;
@@ -66,6 +68,23 @@ export function heroMonitor() {
   if (narrow.matches && video.dataset.srcM) video.dataset.src = video.dataset.srcM;
   let crt = null, visible = false, tried = false;
   video.addEventListener('playing', () => video.classList.add('on'));
+
+  // tap to zoom (phones): full app <-> mission panel
+  const zbtn = $('.zoom-btn', screen), pz = $('.poster-z', screen);
+  function setZoom(on) {
+    fig.classList.toggle('zoomed', on);
+    zbtn.setAttribute('aria-pressed', String(on));
+    if (on && !pz.src) pz.src = pz.dataset.src;
+    pz.hidden = !on;
+    const next = on ? video.dataset.srcZ : (narrow.matches ? video.dataset.srcM : video.dataset.src);
+    video.classList.remove('on');
+    video.dataset.src = next;
+    if (video.getAttribute('src')) { video.src = next; video.load(); }
+    sync();
+    if (on) sfx.thunk?.();
+  }
+  zbtn.addEventListener('click', () => setZoom(!fig.classList.contains('zoomed')));
+  narrow.addEventListener('change', () => { if (fig.classList.contains('zoomed')) setZoom(false); });
 
   const want = () => visible && !motion.reduced && !document.hidden;
   const sync = () => {
@@ -82,8 +101,8 @@ export function heroMonitor() {
     const canvas = document.createElement('canvas');
     canvas.setAttribute('aria-hidden', 'true');
     $('.zoom', screen).append(canvas);
-    // a light touch: barely curved, a whisper of bloom, so the HUD text stays crisp
-    crt = createCRT(canvas, video, { curve: 0.012, bloom: 0.18, chroma: 0.3, scan: 0.1, mask: 0.05, grain: 0.018, decay: 0.3, maxDpr: 2, power: 0, zcx: MISSION.x, zcy: MISSION.y, onLost: () => screen.classList.remove('gl') });
+    // sharp first: no afterglow, bloom and fringing nearly off, light scanlines, so the HUD text stays crisp
+    crt = createCRT(canvas, video, { curve: 0.008, bloom: 0.05, chroma: 0.1, scan: 0.06, mask: 0, grain: 0.008, decay: 0, maxDpr: 2, power: 0, zcx: MISSION.x, zcy: MISSION.y, onLost: () => screen.classList.remove('gl') });
     if (!crt) { canvas.remove(); return; }
     const reveal = () => {
       crt.once();
@@ -104,7 +123,7 @@ export function heroMonitor() {
     if (motion.reduced || narrow.matches) { fig.style.setProperty('--zoom', '1'); fig.style.setProperty('--lift', '0'); crt?.set('zoom', 1); return; }
     const p = clamp(scrollY / (innerHeight * 0.62));
     const e = p * p * (3 - 2 * p);
-    const z = 1 + e * 1.55;
+    const z = 1 + e * PUNCH;
     fig.style.setProperty('--zoom', z.toFixed(3));
     fig.style.setProperty('--lift', e.toFixed(3));
     if (crt) { crt.set('zoom', z); if (!crt.running) crt.once(); }
@@ -135,7 +154,7 @@ export function trailerPlayer() {
           const canvas = document.createElement('canvas');
           canvas.setAttribute('aria-hidden', 'true');
           screen.insertBefore(canvas, video.nextSibling);
-          crt = createCRT(canvas, video, { curve: 0.05, scan: 0.26, bloom: 0.75, decay: 0.7, grain: 0.03, power: 0, maxDpr: 1.5 });
+          crt = createCRT(canvas, video, { curve: 0.03, scan: 0.1, mask: 0.02, bloom: 0.07, chroma: 0.15, decay: 0, grain: 0.01, power: 0, maxDpr: 1.5 });
           if (!crt) canvas.remove();
         }
       } catch { crt = null; }

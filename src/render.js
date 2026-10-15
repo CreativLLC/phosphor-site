@@ -55,10 +55,12 @@ function hero() {
       <div class="bezel">
         <div class="screen" data-crt="hero">
           <div class="zoom">
-            <picture><source media="(max-width: 899px)" srcset="media/hero-m.webp" width="800" height="1000"><img class="poster" src="media/hero.webp" width="2048" height="1280" alt="The Phosphor-OS app: a chat on the left, and the mission panel with plan usage, task, summary, what it is doing now and the steps ahead." fetchpriority="high" decoding="async"></picture>
-            <video class="crt-src" muted playsinline loop preload="none" data-src="media/hero.mp4" data-src-m="media/hero-m.mp4" aria-hidden="true"></video>
+            <picture><source media="(max-width: 899px)" srcset="media/hero-m.webp" width="1280" height="720"><img class="poster" src="media/hero.webp" width="2560" height="1440" alt="${e(h.alt)}" fetchpriority="high" decoding="async"></picture>
+            <img class="poster poster-z" data-src="media/hero-zoom.webp" width="800" height="1000" alt="" aria-hidden="true" decoding="async" hidden>
+            <video class="crt-src" muted playsinline loop preload="none" data-src="media/hero.mp4" data-src-m="media/hero-m.mp4" data-src-z="media/hero-zoom.mp4" aria-hidden="true"></video>
           </div>
           <span class="glass" aria-hidden="true"></span>
+          <button class="zoom-btn" type="button" aria-pressed="false"><span class="zb-on">TAP TO ZOOM</span><span class="zb-off">SEE THE FULL APP</span></button>
         </div>
         <div class="bezel-foot" aria-hidden="true"><span>PHOSPHOR P3 // AMBER</span><span class="leds"><i></i><i></i><i class="on"></i></span></div>
       </div>
@@ -225,7 +227,7 @@ function os() {
   <div class="wrap">
     <div class="desk">
       <img class="desk-wall" src="media/wallpaper.webp" alt="" width="1600" height="900" loading="lazy" decoding="async">
-      <div class="desk-win" aria-hidden="true"><p class="dw-h"><span>PHOSPHOR-OS</span><span>Plugin system</span></p><img src="media/hero.webp" alt="" width="2048" height="1280" loading="lazy" decoding="async"></div>
+      <div class="desk-win" aria-hidden="true"><p class="dw-h"><span>PHOSPHOR-OS</span><span>Plugin system</span></p><img src="media/hero.webp" alt="" width="2560" height="1440" loading="lazy" decoding="async"></div>
       <div class="desk-copy"><p class="chip chip-s">NOTIFICATIONS</p><h3>${e(s.bell.t)}</h3><p>${e(s.bell.d)}</p></div>
       <div class="desk-notes" aria-hidden="true"></div>
       <div class="desk-bar" aria-hidden="true"><span class="ws"><b>1</b>2 3 4</span><span class="app on">PHOSPHOR-OS</span><span class="app">TERMINAL</span><span class="app">FIREFOX</span><span class="app needs">FILES</span><span class="sp"></span><span class="cpu">CPU 23%</span><span class="dclock">21:41</span><span class="dbell">${bell()}<b class="dbell-n">0</b></span></div>
@@ -254,6 +256,17 @@ function beat() {
       </div>
     </div>
     <ul class="blocks">${s.blocks.map((b, i) => `<li class="rv" style="--d:${i}"><h3><span class="br">[</span>${e(b.t)}<span class="br">]</span></h3><p>${e(b.d)}</p></li>`).join('')}</ul>
+  </div>
+  <div class="wrap">
+    <aside class="wait rv" aria-labelledby="wait-h">
+      <div class="wait-copy">
+        <p class="wait-tag"><span class="chip chip-s">AUTO</span><span>${e(s.wait.tag)}</span></p>
+        <h3 id="wait-h">${e(s.wait.t)}</h3>
+        <p>${e(s.wait.d)}</p>
+        <p class="small">${e(s.wait.small)}</p>
+      </div>
+      <ol class="wait-log" aria-hidden="true">${s.wait.log.map((l) => `<li class="l-${l.k}"><b>${l.k === 'auto' ? 'AUTO' : l.k === 'wait' ? 'WAIT' : 'NOTE'}</b>${e(l.t)}</li>`).join('')}</ol>
+    </aside>
   </div>
 </section>`;
 }
@@ -395,10 +408,14 @@ export function renderHead() {
   const s = C.site;
   return `<title>${e(s.title)}</title>
 <meta name="description" content="${e(s.description)}">
+<link rel="canonical" href="${C.SITE_URL}">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Phosphor-OS">
 <meta property="og:title" content="${e(s.title)}">
 <meta property="og:description" content="${e(s.description)}">
 <meta property="og:image" content="${C.SITE_URL}media/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:url" content="${C.SITE_URL}">
 <meta name="twitter:image" content="${C.SITE_URL}media/og.jpg">
 <meta name="twitter:card" content="summary_large_image">

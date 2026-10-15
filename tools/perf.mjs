@@ -1,5 +1,5 @@
-// Lighthouse, mobile and desktop, headless, against dist/ served the way GitHub Pages does (under /phosphor-os/).
-//   npm run build && node tools/serve-pages.mjs 4176 /phosphor-os/ &   (stop it after)
+// Lighthouse, mobile and desktop, headless, against dist/ served the way GitHub Pages does (at the domain root).
+//   npm run build && node tools/serve-pages.mjs 4176 &   (stop it after)
 //   npm run perf                      (or URL=... node tools/perf.mjs)
 // Lighthouse is not a dependency of the site: point LIGHTHOUSE at its cli (lighthouse/cli/index.js), or have it
 // on PATH. Chrome comes from CHROME_PATH, or the trailer project's Playwright browsers.
@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 
-const URL_ = process.env.URL || 'http://127.0.0.1:4176/phosphor-os/?noboot';
+const URL_ = process.env.URL || 'http://127.0.0.1:4176/?noboot';
 const chrome = process.env.CHROME_PATH || `${homedir()}/phosphor-site/trailer/.browsers/chromium-1248/chrome-linux64/chrome`;
 const cli = process.env.LIGHTHOUSE;
 if (!existsSync(chrome)) { console.error(`No Chrome at ${chrome}. Set CHROME_PATH.`); process.exit(1); }

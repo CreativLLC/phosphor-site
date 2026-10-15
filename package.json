@@ -11,7 +11,7 @@
     "sprites": "node tools/sprites.mjs",
     "shots": "node tools/shots.mjs",
     "perf": "node tools/perf.mjs",
-    "pages": "node tools/serve-pages.mjs 4176 /phosphor-os/"
+    "pages": "node tools/serve-pages.mjs 4176"
   },
   "devDependencies": {
     "vite": "^7.3.7"

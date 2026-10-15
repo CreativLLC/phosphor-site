@@ -7,13 +7,10 @@
 <meta name="robots" content="noindex">
 <title>Kernel panic: page not found | Phosphor-OS</title>
 <script>
-  // GitHub Pages serves this file for any missing path, at any depth, so the font path is absolute. The site's
-  // own path is filled in at build time from REPO_URL (SITE_URL); a server without that prefix gets '/'.
+  // GitHub Pages serves this file for any missing path, at any depth. The site is at the domain root, so assets are /...
   (function () {
-    var base = '%SITE_PATH%';
-    var root = location.pathname.indexOf(base) === 0 ? base : '/';
     var s = document.createElement('style');
-    s.textContent = "@font-face{font-family:VT323;src:url('" + root + "fonts/vt323-latin-400-normal.woff2') format('woff2');font-display:swap}";
+    s.textContent = "@font-face{font-family:VT323;src:url('/fonts/vt323-latin-400-normal.woff2') format('woff2');font-display:swap}";
     document.head.appendChild(s);
   })();
 </script>
@@ -46,7 +43,7 @@
   <p class="chip">KERNEL PANIC // 404</p>
   <h1>Not syncing: page not found.</h1>
   <p>The address you followed does not exist on this ship. Nothing is broken on your side.<span class="c" aria-hidden="true"></span></p>
-  <p><a class="solid" id="home" href="%SITE_URL%">REBOOT TO THE HOME PAGE</a><a href="%REPO_URL%" rel="noopener">OPEN THE REPO</a></p>
+  <p><a class="solid" id="home" href="/">REBOOT TO THE HOME PAGE</a><a href="%REPO_URL%" rel="noopener">OPEN THE REPO</a></p>
 </main>
 </body>
 </html>
