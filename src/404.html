@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0700">
+<meta name="robots" content="noindex">
+<title>Kernel panic: page not found | Phosphor-OS</title>
+<script>
+  // GitHub Pages serves this file for any missing path, at any depth: find the site root from the URL so the
+  // font and the home link work (project sites live under /<repo>/, user sites at /).
+  (function () {
+    var p = location.pathname.split('/').filter(Boolean);
+    var root = location.hostname.endsWith('github.io') && p.length ? '/' + p[0] + '/' : '/';
+    window.__root = root;
+    var s = document.createElement('style');
+    s.textContent = "@font-face{font-family:VT323;src:url('" + root + "fonts/vt323-latin-400-normal.woff2') format('woff2');font-display:swap}";
+    document.head.appendChild(s);
+  })();
+</script>
+<style>
+  :root { --ph: #ffb000; --ph-bright: #ffd68a; --ph-dim: #b07c08; --bg: #0b0700; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: radial-gradient(ellipse 120% 90% at 50% 42%, #1c1204 0%, var(--bg) 70%) var(--bg); }
+  body { font-family: VT323, ui-monospace, Consolas, monospace; color: var(--ph); font-size: 22px; line-height: 1.3; text-shadow: 0 0 1px rgb(255 176 0 / .6), 0 0 5px rgb(255 176 0 / .28); min-height: 100vh; display: grid; align-content: center; padding: 6vh 6vw; }
+  pre { font: inherit; margin: 0 0 4vh; white-space: pre-wrap; color: var(--ph-dim); font-size: clamp(15px, 1.6vw, 20px); }
+  .chip { display: inline-block; background: var(--ph); color: var(--bg); text-shadow: none; padding: 0 10px; letter-spacing: .14em; box-shadow: 0 0 14px rgb(255 176 0 / .4); }
+  h1 { font-weight: 400; font-size: clamp(40px, 6vw, 88px); line-height: 1; margin: 18px 0; color: var(--ph-bright); text-transform: uppercase; text-shadow: 0 0 2px rgb(255 176 0 / .8), 0 0 10px rgb(255 176 0 / .45); max-width: 18ch; }
+  p { margin: 0 0 16px; max-width: 56ch; }
+  a { display: inline-block; margin: 10px 14px 0 0; padding: 8px 16px 6px; border: 1px solid var(--ph); color: var(--ph-bright); text-decoration: none; letter-spacing: .1em; }
+  a.solid { background: var(--ph); color: var(--bg); text-shadow: none; }
+  a:hover { background: var(--ph-bright); color: var(--bg); text-shadow: none; }
+  a:focus-visible { outline: 2px solid var(--ph-bright); outline-offset: 3px; }
+  .c { display: inline-block; width: .5em; height: .85em; background: var(--ph-bright); vertical-align: -.08em; animation: b 1.06s steps(1) infinite; }
+  @keyframes b { 50% { opacity: 0; } }
+  body::after { content: ''; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 110% 100% at 50% 50%, transparent 60%, rgba(0,0,0,.5) 100%), repeating-linear-gradient(to bottom, transparent 0, rgba(0,0,0,.17) 1.5px, transparent 3px); }
+  @media (prefers-reduced-motion: reduce) { .c { animation: none; } }
+</style>
+</head>
+<body>
+<pre aria-hidden="true">[    0.000000] phosphor: amber P3 phosphor, 80x25
+[    0.004211] crew: 5 of 5 on deck
+[    0.013370] router: GET this-page ... no such route
+[    0.013371] Kernel panic - not syncing: page not found
+[    0.013372] ---[ end Kernel panic - not syncing: page not found ]---</pre>
+<main>
+  <p class="chip">KERNEL PANIC // 404</p>
+  <h1>Not syncing: page not found.</h1>
+  <p>The address you followed does not exist on this ship. Nothing is broken on your side.<span class="c" aria-hidden="true"></span></p>
+  <p><a class="solid" id="home" href="/">REBOOT TO THE HOME PAGE</a><a href="%REPO_URL%" rel="noopener">OPEN THE REPO</a></p>
+</main>
+<script>document.getElementById('home').href = window.__root || '/';</script>
+</body>
+</html>

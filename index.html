@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" data-crt="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0700">
+<meta name="color-scheme" content="dark">
+<!--slot:head-->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script>
+  // Before first paint: mark JS on, restore CRT strength, and decide on the boot sequence (once per session).
+  (function (d) {
+    var h = d.documentElement, s = window.sessionStorage, l = window.localStorage, q = location.search;
+    h.classList.add('js');
+    try { var c = l.getItem('ph-crt'); if (c) h.setAttribute('data-crt', c); } catch (e) {}
+    var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    try { if (!rm && !/noboot/.test(q) && !s.getItem('ph-booted')) h.classList.add('booting'); } catch (e) {}
+  })(document);
+</script>
+<link rel="stylesheet" href="/src/styles/main.css">
+<script type="module" src="/src/main.js"></script>
+</head>
+<body>
+<!--slot:body-->
+</body>
+</html>
