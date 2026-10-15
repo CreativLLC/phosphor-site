@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import pages from './plugins/pages.js';
 
-// Served by GitHub Pages at the custom domain phosphor.creativllc.org, at the root path (see public/CNAME, DEPLOY.md).
+// Served by GitHub Pages at the custom domain phosphor.creativllc.net, at the root path (see public/CNAME, DEPLOY.md).
 export default defineConfig({
   base: '/',
   plugins: [pages()],

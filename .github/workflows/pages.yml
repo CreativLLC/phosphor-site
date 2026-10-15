@@ -1,5 +1,5 @@
-# Build with Vite and publish dist/ to GitHub Pages at https://phosphor.creativllc.org
-# (Settings > Pages > Source: GitHub Actions, custom domain phosphor.creativllc.org; see DEPLOY.md).
+# Build with Vite and publish dist/ to GitHub Pages at https://phosphor.creativllc.net
+# (Settings > Pages > Source: GitHub Actions, custom domain phosphor.creativllc.net; see DEPLOY.md).
 # Actions are pinned to a commit SHA (the tag is in the comment).
 name: pages
 on:

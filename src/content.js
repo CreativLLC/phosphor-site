@@ -4,7 +4,7 @@
 
 export const REPO_URL = 'https://github.com/CreativLLC/phosphor-os';
 // The site is served by GitHub Pages at this custom domain, at the root path (vite.config.js base '/', public/CNAME).
-export const SITE_URL = 'https://phosphor.creativllc.org/';
+export const SITE_URL = 'https://phosphor.creativllc.net/';
 // GitHub Pages serves 404.html for any missing path, so its links must be absolute (filled in by plugins/pages.js).
 export const REPO_SHORT = REPO_URL.replace(/^https?:\/\//, '');
 export const CLONE_LINE = `git clone ${REPO_URL}.git ~/phosphor-os`;

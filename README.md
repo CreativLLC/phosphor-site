@@ -1,7 +1,7 @@
 # Phosphor-OS site, direction A: "Ship interface"
 
 The page is a ship computer coming online. Amber phosphor only, static, no tracking, no third-party requests.
-Vanilla Vite 7, zero runtime dependencies. Output in `dist/` with `base: '/'`: it is served by GitHub Pages at https://phosphor.creativllc.org (see `DEPLOY.md`).
+Vanilla Vite 7, zero runtime dependencies. Output in `dist/` with `base: '/'`: it is served by GitHub Pages at https://phosphor.creativllc.net (see `DEPLOY.md`).
 
 ```
 npm ci
