@@ -15,7 +15,7 @@ export const OMARCHY_URL = 'https://omarchy.org';
 export const site = {
   title: 'Phosphor-OS: the agent OS',
   description:
-    'An amber-CRT Linux desktop built around Claude Code. The whole screen shows what your agents are doing. Open source, runs on your own Anthropic account.',
+    'An amber-CRT Linux desktop built around Claude Code, with Claude or local models. The whole screen shows what your agents are doing. Open source, runs on your own Anthropic account or your own GPU.',
   themeColor: '#0b0700',
 };
 
@@ -32,17 +32,17 @@ export const nav = [
 ];
 
 export const hero = {
-  eyebrow: ['OPEN SOURCE', 'MIT', 'FOR CLAUDE CODE'],
+  eyebrow: ['OPEN SOURCE', 'MIT', 'FOR CLAUDE CODE OR LOCAL MODELS'],
   wordmark: 'PHOSPHOR-OS',
   headline: 'THE AGENT OS.',
   alternates: ['THE APP YOU LIVE IN WHEN YOU WORK WITH AGENTS.', 'SEE EVERYTHING.'],
-  sub: 'A whole desktop built around Claude Code. One screen shows what your agent is doing now, the steps ahead, the context window, the crew, the model, your plan and every file it touches.',
+  sub: 'A whole desktop built around Claude Code, running Claude or a local model on your own GPU. One screen shows what your agent is doing now, the steps ahead, the context window, the crew, the model, your plan and every file it touches.',
   monitor: 'The whole app, live, in demo mode: tabs on top, the crew on the left, the chat in the middle, the mission panel on the right.',
   alt: 'The whole Phosphor-OS window: chat tabs and buttons on top, the operator and crew cards on the left, the chat in the middle, and on the right the mission panel with plan usage, task, summary, what it is doing now and the steps ahead.',
   primary: { label: 'INSTALL IT', href: '#install' },
   secondary: { label: 'VIEW ON GITHUB', href: REPO_URL },
   tertiary: { label: 'WATCH THE 45 SECOND TRAILER', href: '#trailer' },
-  under: 'Built on Omarchy. Powered by Claude Code. Amber phosphor on black.',
+  under: 'Built on Omarchy. Powered by Claude Code, with Claude or local models. Amber phosphor on black.',
 };
 
 export const boot = [
@@ -202,7 +202,7 @@ export const how = {
     { n: '02', t: 'CLAUDE CODE', role: 'THE ENGINE', d: 'The same tools, permissions, sessions, CLAUDE.md files and MCP servers you already use. Your agent is the real thing.' },
     { n: '01', t: 'OMARCHY', role: 'THE GROUND', d: 'Arch Linux with the Hyprland window manager. Phosphor-OS ships an add-on pack: theme, bar, notifications, screensaver, keys. Every change is listed and can be undone.' },
   ],
-  strip: 'YOUR PC // YOUR ANTHROPIC ACCOUNT // NO MIDDLEMAN',
+  strip: 'YOUR PC // YOUR ANTHROPIC ACCOUNT OR YOUR OWN GPU // NO MIDDLEMAN',
   body: 'You sign in to Claude Code once, with your own Anthropic account. Phosphor-OS does not ask for a key and has no server of its own. It reaches your agents through the Claude Agent SDK.',
 };
 
@@ -212,12 +212,12 @@ export const gpu = {
   tag: 'OPTIONAL',
   d: 'Have a capable graphics card? Pick a local model from the same picker. It answers on your machine, with no plan limit and no network. Tools, edits and permission cards work the same.',
   models: [
-    { n: 'QWEN 27B', v: 'about 18 GB' },
-    { n: 'QWEN 35B MOE', v: 'about 16 GB' },
-    { n: 'GEMMA 26B MOE', v: 'about 16 GB' },
-    { n: 'GEMMA E4B', v: 'about 5 GB' },
+    { n: 'QWEN3.8 27B', v: 'about 18 GB' },
+    { n: 'QWEN3.6 35B MOE', v: 'about 16 GB' },
+    { n: 'GEMMA 4 26B MOE', v: 'about 16 GB' },
+    { n: 'GEMMA 4 E4B', v: 'about 5 GB' },
   ],
-  small: 'llama.cpp, written for AMD cards with ROCm. One command sets it up, another frees the GPU. A small model is weaker than Claude on long jobs.',
+  small: 'Easiest setup: ask your agent. Tell Claude Code "set up a local model for Phosphor-OS" and it follows the guide in the repo. llama.cpp, written for AMD cards with ROCm. A small model is weaker than Claude on long jobs.',
 };
 
 export const install = {
@@ -239,20 +239,20 @@ export const install = {
 
 export const faq = [
   { q: 'What do I need?', a: 'Omarchy 4 (Arch with Hyprland) and a Claude account logged in to Claude Code. The setup script installs Node 24 and the rest. A phone and a free Tailscale account are optional, and so is a GPU for local models.' },
-  { q: 'What does it cost?', a: 'Phosphor-OS is free and open source. You pay Anthropic for your own Claude plan, the same as you do today. Phosphor-OS adds no fee and no account of its own.' },
+  { q: 'What does it cost?', a: 'Phosphor-OS is free and open source. You pay Anthropic for your own Claude plan, the same as you do today. A local model on your own GPU costs nothing per message. Phosphor-OS adds no fee and no account of its own.' },
   { q: 'Is it private and safe?', a: 'The server listens on 127.0.0.1 only and sits behind a password. For your phone it uses Tailscale, so only your own devices can reach it. It never uses Tailscale Funnel and never opens a port to the internet. Your chats stay on your PC and go to Anthropic exactly as they do in Claude Code. Phone alerts carry a tab name only, never chat text. Because the agent can run commands on your PC, Claude Code\'s approve and deny cards stay on.' },
-  { q: 'Can I run a model on my own GPU?', a: 'Yes, optionally. Four local models sit in the same picker (Qwen and Gemma, on llama.cpp): the large ones want about 16 to 20 GB of video memory, the smallest about 5 GB. The setup is written for AMD cards with ROCm. A small local model is weaker than Claude on long, many-step jobs, so use it for quick work and privacy. Everything else works without it.' },
+  { q: 'Can I run a model on my own GPU?', a: 'Yes, optionally. Four local models sit in the same picker (Qwen and Gemma, on llama.cpp): the large ones want about 16 to 20 GB of video memory, the smallest about 5 GB. To set it up, ask your agent: tell Claude Code "set up a local model for Phosphor-OS" and it follows the guide in the repo. The setup is written for AMD cards with ROCm. A small local model is weaker than Claude on long, many-step jobs, so use it for quick work and privacy. Everything else works without it.' },
   { q: 'Does it run on Windows?', a: 'The app runs on Windows 10 and 11, in the browser or as a desktop app. The full operating system look is built on Omarchy, so that part is Linux only. macOS is not tested.' },
   { q: 'Which Claude plan do I need?', a: 'Any plan that includes Claude Code. Agents use a lot of it, so the plan meter on the HUD shows how much you have left, and if a limit stops a job the app waits for the reset and continues it by itself.' },
   { q: 'Can I change it?', a: 'Yes, that is the point. It is MIT licensed, plain files, and Claude Code can edit it for you. Ask for a new launcher command, a different bar or a bigger clock, and keep the undo script close.' },
 ];
 
 export const footer = {
-  end: { title: 'PHOSPHOR-OS', sub: 'THE AGENT OS.', line: 'OPEN SOURCE. BRING YOUR OWN CLAUDE CODE.' },
+  end: { title: 'PHOSPHOR-OS', sub: 'THE AGENT OS.', line: 'OPEN SOURCE. BRING YOUR OWN CLAUDE CODE OR LOCAL MODEL.' },
   l1: 'PHOSPHOR-OS // THE AGENT OS',
   l2: 'MIT licensed. Free to use, change and share.',
   l3: 'Built on Omarchy and Claude Code. Not affiliated with Anthropic.',
-  last: 'Your own Anthropic account. Your own machine.',
+  last: 'Your own Anthropic account or your own GPU. Your own machine.',
   links: [
     { label: 'GITHUB', href: REPO_URL },
     { label: 'INSTALL GUIDE', href: README_URL },

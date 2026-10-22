@@ -41,7 +41,7 @@ function hero() {
   <div class="hero-sky" aria-hidden="true"><img src="media/wallpaper.webp" alt="" width="1600" height="900" fetchpriority="low" decoding="async"></div>
   <div class="hero-grid">
     <div class="hero-copy">
-      <p class="eyebrow">${h.eyebrow.map((x) => `<span>${e(x)}</span>`).join('<i aria-hidden="true">//</i>')}</p>
+      <p class="eyebrow">${h.eyebrow.map((x, i) => `<span>${i ? '<i aria-hidden="true">//</i> ' : ''}${e(x)}</span>`).join('')}</p>
       <h1 id="hero-h"><span class="wordmark" data-text="${e(h.wordmark)}">${e(h.wordmark)}</span><span class="sr"> : </span><span class="tagline"><span class="tl-text" data-alts="${e([h.headline, ...h.alternates].join('|'))}">${e(h.headline)}</span><i class="caret" aria-hidden="true"></i></span></h1>
       <p class="sub">${e(h.sub)}</p>
       <div class="ctas">
